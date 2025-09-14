@@ -24,6 +24,9 @@ Alert rules for server resources are displayed in the following table:
 | **Warning** | >80% for 2min or more | >90% for 2min or more | >90% | Read/Write latency > 20ms | -
 | **Critical** | >90% for 1min or more | >95% for 1min or more | >95% | Read/Write latency > 50ms | packet_loss=100%
 
+An example of an alert sent by Kapacitor to a telegram chat is displayed below.
+![Alert](docs/alert.png)
+
 ## Dashboard
 
 Summary dashboard that shows server resources usage, MySQL server health and Nginx requests/responses info is displayed below:
