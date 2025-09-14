@@ -1,0 +1,13 @@
+dbrp "mybucket"."autogen"
+
+var data = batch
+	|query('SELECT usage_idle, host FROM "mybucket". "autogen"."cpu"')
+		.period (5m)
+		.every (10s)
+	|alert()
+    		.message('🚨 HOST: {{ index .Fields "host" }} | CPU load is: {{ index .Fields "usage_idle" | printf "%.2f" }}%')
+    		.info(lambda: "usage_idle" < 30 )
+    		.warn(lambda: "usage_idle" < 20 )
+    		.crit(lambda: "usage_idle" > 10)
+    		.telegram()
+
