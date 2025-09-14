@@ -1,0 +1,20 @@
+// alerts/network_link_down_batch.tick
+dbrp "mybucket"."autogen"
+
+var data = batch
+  |query('''
+    SELECT 
+      last("bytes_sent") as last_sent,
+      last("bytes_recv") as last_recv
+    FROM "mybucket"."autogen"."net"
+  ''')
+    .period(3m)
+    .every(1m)
+    .groupBy('host', 'interface')
+
+data
+  |alert()
+    .id('Network Link Down on {{ .Interface }}')
+    .message('Network interface {{ .Tags.interface }} is DOWN on host {{ .Tags.host }}. No traffic for 3 minutes.')
+    .crit(lambda: "last_sent" == 0 AND "last_recv" == 0)
+    .telegram()

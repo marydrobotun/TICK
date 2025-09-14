@@ -5,7 +5,7 @@ var data = batch
     SELECT 
       mean("read_time") as mean_read_time, 
       mean("reads") as mean_reads 
-    FROM "telegraf"."autogen"."diskio"
+    FROM "mybucket"."autogen"."diskio"
   ''')
     .period(2m)
     .every(30s)
