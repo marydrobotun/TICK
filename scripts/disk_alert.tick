@@ -1,26 +1,12 @@
 dbrp "mybucket"."autogen"
 
 var data = batch
-  |query('''
-    SELECT 
-      mean("read_time") as mean_read_time, 
-      mean("reads") as mean_reads 
-    FROM "mybucket"."autogen"."diskio"
-  ''')
-    .period(2m)
-    .every(30s)
-    .groupBy('host', 'device', 'name')
-
-var latency = data
-  |eval(lambda: "mean_read_time" / "mean_reads" * 1000.0)
-    .as('read_latency_ms')
-    .keep('mean_read_time', 'mean_reads', 'read_latency_ms')
-
-latency
-  |alert()
-    .id('High Disk Read Latency on {{ .Device }}')
-    .message('Read latency is {{ index .Fields "read_latency_ms" | printf "%.2f" }} ms on {{ .Tags.host }}/{{ .Tags.name }}')
-	.info(lambda: "read_latency_ms" > 15.0)
-    .warn(lambda: "read_latency_ms" > 20.0)
-    .crit(lambda: "read_latency_ms" > 50.0)
-    .telegram()
+	|query('SELECT used_percent, host FROM "mybucket". "autogen"."disk"')
+		.period (5m)
+		.every (10s)
+	|alert()
+    		.message('🚨 HOST: {{ index .Fields "host" }} |  Disk usage is: {{ index .Fields "used_percent" | printf "%.2f" }}%')
+    		.info(lambda: "used_percent" < 80 )
+    		.warn(lambda: "used_percent" < 90 )
+    		.crit(lambda: "used_percent" > 95)
+    		.telegram()
